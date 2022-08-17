@@ -1,0 +1,67 @@
+---
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Include OS-specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+
+- name: include users
+  include_tasks: "users.yml"
+
+- name: Add epel repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: include awscli task
+  include_tasks: "awscli.yml"
+  when: awscli
+
+- name: include disable selinux task
+  include_tasks: "disable_selinux.yml"
+  when: selinux_disable
+
+- name: Update yum cache
+  yum:
+    update_cache: yes
+
+- name: Install a list of packages
+  yum:
+    name:
+    - nano
+    - bash-completion
+    - git
+    - wget
+    - curl
+    - yum-utils
+    - net-tools
+    state: present
+
+- name: include iptables
+  include_tasks: "iptables.yml"
+  when: iptables
+
+- name: include cockpit
+  include_tasks: "cockpit.yml"
+  when: cockpit
+
+- name: include networkmanager
+  include_tasks: "networkmanager.yml"
+  when: networkmanager
+
+- name: include libvirt.yml
+  include_tasks: "libvirt.yml"
+  when: virtualization_host
+
+- name: include sshd.yml
+  include_tasks: "sshd.yml"
+
+- name: include docker.yml
+  include_tasks: "docker.yml"
+  when: docker

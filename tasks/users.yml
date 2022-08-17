@@ -1,0 +1,38 @@
+---
+- name: Add users
+  user:
+    name: "{{ item.name }}"
+    append: yes
+    groups: "{{ item.group }}"
+    createhome: yes
+  with_items: "{{ user_list }}"
+  when: user_list is defined
+
+- name: Add .ssh directories
+  file:
+    path: "/home/{{ item.name }}/.ssh"
+    state: directory
+    mode: 0700
+    owner: "{{ item.name }}"
+  with_items: "{{ user_list }}"
+  when: user_list is defined
+
+- name: Add keys
+  lineinfile:
+    dest: "/home/{{ item.name }}/.ssh/authorized_keys"
+    state: present
+    create: yes
+    line: "{{ item.auth_key }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.group|default(item.name) }}"
+    mode: 0644
+  when: item.auth_key is defined
+  with_items: "{{ user_list }}"
+
+- name: Allow sudo nopassword
+  copy:
+    content: |
+      {{ item.name }} ALL=(ALL) NOPASSWD:ALL
+    dest: "/etc/sudoers.d/{{ item.name }}"
+  with_items: "{{ user_list }}"
+  when: user_list is defined

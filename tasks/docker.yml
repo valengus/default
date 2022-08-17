@@ -1,0 +1,24 @@
+---
+- name: docker-ce.repo
+  copy:
+    content: |
+      [docker-ce-stable]
+      name=Docker CE Stable - $basearch
+      baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/stable
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/centos/gpg
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Import docker GPG-KEY
+  rpm_key:
+    state: present
+    key: https://download.docker.com/linux/centos/gpg
+
+- name: Install docker-ce 
+  yum:
+    name:
+    - docker-ce 
+    - docker-ce-cli 
+    - containerd.io
+    state: present

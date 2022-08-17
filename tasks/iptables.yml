@@ -1,0 +1,70 @@
+  - name: Install iptables
+    yum:
+      name:
+      - iptables-services
+      - iptables-utils
+      state: present
+
+  - name: Install fail2ban
+    yum:
+      name: fail2ban
+      state: latest 
+
+  - name: fail2ban ssh conf
+    copy:
+      content: |
+        [DEFAULT]
+        # Ban hosts for one hour:
+        bantime = 3600
+        # Override /etc/fail2ban/jail.d/00-firewalld.conf:
+        banaction = iptables-multiport
+        [sshd]
+        enabled = true
+        ignoreip = 176.120.107.26 185.115.37.233
+      dest: /etc/fail2ban/jail.local
+    notify:
+    - Restart fail2ban
+
+  - name: Disable & stop firewalld
+    systemd:
+      name: firewalld
+      state: stopped
+      enabled: no
+
+  - name: Enable & start iptables
+    systemd:
+      name: iptables
+      state: started
+      enabled: yes
+
+  - name: default iptables rules
+    copy:
+      content: |
+        *filter
+        :INPUT DROP [0:0]
+        :FORWARD DROP [0:0]
+        :OUTPUT ACCEPT [0:0]
+        -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -m comment --comment "related&established" -j ACCEPT
+        -A INPUT -i lo -j ACCEPT
+        -A INPUT ! -i lo -d 127.0.0.0/8 -j REJECT
+        -A INPUT -m conntrack --ctstate INVALID -j DROP
+        -A INPUT -p icmp -m comment --comment icmp -j ACCEPT
+        -A INPUT -p tcp -m tcp --dport 22 --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -m comment --comment ssh -j ACCEPT
+        COMMIT
+      dest: /etc/sysconfig/iptables
+
+  - name: restore firewall state from a file
+    community.general.iptables_state:
+      state: restored
+      path: /etc/sysconfig/iptables
+
+  - name: iptables rules
+    iptables: "{{ item }}"
+    with_items:
+      - "{{iptables_rules}}"
+    when: iptables_rules is defined
+
+  - name: Save current state of the firewall in system file
+    community.general.iptables_state:
+      state: saved
+      path: /etc/sysconfig/iptables

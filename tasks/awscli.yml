@@ -1,0 +1,44 @@
+---
+
+- name: Install awscli
+  yum:
+    name: awscli
+    state: latest
+
+- name: /root/.aws directory
+  file:
+    path: '/root/.aws'
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+    recurse: yes
+
+- name: aws_access_key_id
+  ini_file:
+    path: /root/.aws/credentials
+    section: default
+    option: aws_access_key_id
+    value: "{{ awscli_aws_access_key_id }}"
+
+- name: aws_secret_access_key
+  ini_file:
+    path: /root/.aws/credentials
+    section: default
+    option: aws_secret_access_key
+    value: "{{ awscli_aws_secret_access_key }}"
+
+- name: awscli_output
+  ini_file:
+    path: /root/.aws/config
+    section: default
+    option: output
+    value: "{{ awscli_output }}"
+
+- name: aws_region
+  ini_file:
+    path: /root/.aws/config
+    section: default
+    option: region
+    value: "{{ aws_region }}"
+

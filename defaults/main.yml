@@ -1,0 +1,10 @@
+---
+
+virtualization_host: False
+firewall: True
+selinux_disable: False
+cockpit: False
+networkmanager: True
+timezone: Europe/Kiev
+awscli: False
+docker: False

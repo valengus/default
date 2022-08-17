@@ -1,0 +1,35 @@
+---
+- lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: '^#?AuthenticationMethods' 
+    line: 'AuthenticationMethods publickey'
+  notify :
+    - restart sshd
+
+- lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: '^#?PasswordAuthentication' 
+    line: 'PasswordAuthentication no'
+  notify :
+    - restart sshd
+
+- lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: '^#?ChallengeResponseAuthentication' 
+    line: 'ChallengeResponseAuthentication no'
+  notify :
+    - restart sshd
+
+- lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: '^#?PubkeyAuthentication' 
+    line: 'PubkeyAuthentication yes'
+  notify :
+    - restart sshd
+
+- lineinfile: 
+    dest: /etc/ssh/sshd_config 
+    regexp: '^#?PermitRootLogin' 
+    line: 'PermitRootLogin no'
+  notify :
+    - restart sshd

@@ -1,0 +1,14 @@
+---
+- name: Install cockpit
+  yum:
+    name:
+      - cockpit
+      - cockpit-networkmanager
+      - cockpit-bridge
+      - cockpit-machines
+
+- name: start cockpit service
+  service: 
+    name: cockpit 
+    state: started 
+    enabled: yes

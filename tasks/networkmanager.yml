@@ -1,0 +1,11 @@
+---
+- name: install NetworkManager
+  yum:
+    name: NetworkManager
+    state: installed
+
+- name: Start & enable NetworkManager
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: started
+    enabled: yes

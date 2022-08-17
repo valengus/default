@@ -1,0 +1,41 @@
+---
+
+- name: install the 'virtualization-host' package group
+  yum: name="@^virtualization-host-environment" state=present
+
+- name: Add users to libvirtd
+  user:
+    name: "{{ item.name }}"
+    append: yes
+    groups: libvirt
+    createhome: yes
+  with_items: "{{ user_list }}"
+
+- name: start libvirtd service
+  service: 
+    name: libvirtd 
+    state: started 
+    enabled: yes
+
+# - name: Create bridge
+#   community.general.nmcli:
+#     type: bridge
+#     conn_name: br0
+#     ifname: br0
+#     state: present
+
+# - name: "Make {{ ansible_default_ipv4.interface }} a bridge-slave"
+#   community.general.nmcli:
+#     type: bridge-slave
+#     master: br0
+#     conn_name: "{{ ansible_default_ipv4.interface }}"
+#     ifname: "{{ ansible_default_ipv4.interface }}"
+#     state: present
+#   register: bridge_status
+
+# - name: restart NetworkManager service
+#   service: 
+#     name: NetworkManager 
+#     state: restarted 
+#     enabled: yes
+#   when: bridge_status.changed
