@@ -1,7 +1,9 @@
 ---
 
 - name: install the 'virtualization-host' package group
-  yum: name="@^virtualization-host-environment" state=present
+  yum: 
+    name: "@@Virtualization Host" 
+    state: present
 
 - name: Add users to libvirtd
   user:
