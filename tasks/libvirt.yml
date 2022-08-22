@@ -12,6 +12,7 @@
     groups: libvirt
     createhome: yes
   with_items: "{{ user_list }}"
+  when: user_list is defined
 
 - name: start libvirtd service
   service: 
